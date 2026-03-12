@@ -15,4 +15,6 @@ export interface TimerState {
   timeRemaining: number; // in seconds
   completedSessions: number;
   settings: TimerSettings;
+  /** Set to the session type that just completed; null otherwise. */
+  sessionJustCompleted: SessionType | null;
 }

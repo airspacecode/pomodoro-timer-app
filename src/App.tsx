@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useTimer } from './hooks/useTimer';
+import { useNotifications } from './hooks/useNotifications';
 import { TimerDisplay } from './components/TimerDisplay';
 import { SessionIndicator } from './components/SessionIndicator';
 import { TimerControls } from './components/TimerControls';
 import { DurationSettings } from './components/DurationSettings';
+import { CompletionToast } from './components/CompletionToast';
 import styles from './App.module.css';
 
 const SESSION_THEME: Record<string, string> = {
@@ -13,7 +15,8 @@ const SESSION_THEME: Record<string, string> = {
 };
 
 export default function App() {
-  const { state, start, pause, reset, skipSession, updateSettings } = useTimer();
+  const { state, start, pause, reset, skipSession, updateSettings, dismissAlert } = useTimer();
+  const { permission, requestPermission, notify } = useNotifications();
 
   // Update document title with time remaining
   useEffect(() => {
@@ -28,6 +31,13 @@ export default function App() {
         : 'Long Break';
     document.title = `${time} — ${label} | Pomodoro`;
   }, [state.timeRemaining, state.sessionType]);
+
+  // Fire notifications whenever a session completes
+  useEffect(() => {
+    if (state.sessionJustCompleted) {
+      notify(state.sessionJustCompleted);
+    }
+  }, [state.sessionJustCompleted, notify]);
 
   const themeClass = SESSION_THEME[state.sessionType] ?? 'theme-work';
 
@@ -63,6 +73,13 @@ export default function App() {
           disabled={state.status === 'running'}
         />
       </main>
+
+      <CompletionToast
+        completedSession={state.sessionJustCompleted}
+        notificationPermission={permission}
+        onDismiss={dismissAlert}
+        onRequestPermission={requestPermission}
+      />
     </div>
   );
 }
