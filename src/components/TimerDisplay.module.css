@@ -1,0 +1,23 @@
+.display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border: 6px solid var(--accent);
+  background: var(--surface);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.display.running {
+  box-shadow: 0 0 32px var(--accent-glow);
+}
+
+.time {
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}

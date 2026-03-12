@@ -1,0 +1,81 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Work session theme (default) */
+:root,
+.theme-work {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --surface-border: #2a2d4a;
+  --surface-hover: #323566;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #e74c3c;
+  --accent-hover: #c0392b;
+  --accent-glow: rgba(231, 76, 60, 0.35);
+  --accent-text: #ffffff;
+  --accent-break: #27ae60;
+  --accent-long: #2980b9;
+}
+
+/* Short break theme */
+.theme-short-break {
+  --bg: #0d2818;
+  --surface: #0a1f12;
+  --surface-border: #1a3d25;
+  --surface-hover: #245232;
+  --accent: #27ae60;
+  --accent-hover: #219a52;
+  --accent-glow: rgba(39, 174, 96, 0.35);
+}
+
+/* Long break theme */
+.theme-long-break {
+  --bg: #0d1f35;
+  --surface: #0a1626;
+  --surface-border: #1a3050;
+  --surface-hover: #1e3d66;
+  --accent: #2980b9;
+  --accent-hover: #2471a3;
+  --accent-glow: rgba(41, 128, 185, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--bg, #1a1a2e);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
