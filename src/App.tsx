@@ -1,11 +1,68 @@
-import { PomodoroTimer } from './components/PomodoroTimer';
+import { useEffect } from 'react';
+import { useTimer } from './hooks/useTimer';
+import { TimerDisplay } from './components/TimerDisplay';
+import { SessionIndicator } from './components/SessionIndicator';
+import { TimerControls } from './components/TimerControls';
+import { DurationSettings } from './components/DurationSettings';
+import styles from './App.module.css';
 
-function App() {
+const SESSION_THEME: Record<string, string> = {
+  'work': 'theme-work',
+  'short-break': 'theme-short-break',
+  'long-break': 'theme-long-break',
+};
+
+export default function App() {
+  const { state, start, pause, reset, skipSession, updateSettings } = useTimer();
+
+  // Update document title with time remaining
+  useEffect(() => {
+    const minutes = Math.floor(state.timeRemaining / 60);
+    const seconds = state.timeRemaining % 60;
+    const time = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const label =
+      state.sessionType === 'work'
+        ? 'Focus'
+        : state.sessionType === 'short-break'
+        ? 'Short Break'
+        : 'Long Break';
+    document.title = `${time} — ${label} | Pomodoro`;
+  }, [state.timeRemaining, state.sessionType]);
+
+  const themeClass = SESSION_THEME[state.sessionType] ?? 'theme-work';
+
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <PomodoroTimer />
-    </main>
+    <div className={`${styles.app} ${themeClass}`}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Pomodoro</h1>
+      </header>
+
+      <main className={styles.main}>
+        <SessionIndicator
+          sessionType={state.sessionType}
+          completedSessions={state.completedSessions}
+          longBreakInterval={state.settings.longBreakInterval}
+        />
+
+        <TimerDisplay
+          timeRemaining={state.timeRemaining}
+          status={state.status}
+        />
+
+        <TimerControls
+          status={state.status}
+          onStart={start}
+          onPause={pause}
+          onReset={reset}
+          onSkip={skipSession}
+        />
+
+        <DurationSettings
+          settings={state.settings}
+          onUpdate={updateSettings}
+          disabled={state.status === 'running'}
+        />
+      </main>
+    </div>
   );
 }
-
-export default App;

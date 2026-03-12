@@ -1,26 +1,18 @@
-export type SessionType = 'work' | 'shortBreak' | 'longBreak';
+export type SessionType = 'work' | 'short-break' | 'long-break';
 
 export type TimerStatus = 'idle' | 'running' | 'paused';
 
 export interface TimerSettings {
-  workDuration: number;       // in seconds
-  shortBreakDuration: number; // in seconds
-  longBreakDuration: number;  // in seconds
-  sessionsBeforeLongBreak: number;
+  workDuration: number;      // in minutes
+  shortBreakDuration: number;
+  longBreakDuration: number;
+  longBreakInterval: number; // number of work sessions before long break
 }
 
 export interface TimerState {
   status: TimerStatus;
   sessionType: SessionType;
-  timeRemaining: number;       // in seconds
-  completedWorkSessions: number;
+  timeRemaining: number; // in seconds
+  completedSessions: number;
   settings: TimerSettings;
-}
-
-export interface TimerActions {
-  start: () => void;
-  pause: () => void;
-  reset: () => void;
-  skipSession: () => void;
-  updateSettings: (settings: Partial<TimerSettings>) => void;
 }
