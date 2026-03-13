@@ -1,0 +1,45 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  color: var(--text-primary);
+}
+
+.btn:active {
+  transform: scale(0.94);
+}
+
+.primary {
+  width: 64px;
+  height: 64px;
+  background: var(--accent);
+  color: var(--accent-text);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.secondary {
+  width: 46px;
+  height: 46px;
+  background: var(--surface-border);
+  color: var(--text-secondary);
+}
+
+.secondary:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}

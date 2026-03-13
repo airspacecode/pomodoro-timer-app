@@ -5,18 +5,11 @@ import './PomodoroTimer.css';
 
 export function PomodoroTimer() {
   const timer = useTimer();
-  const { state } = timer;
 
-  const { settings, sessionType, timeRemaining, status } = state;
-
-  // Replace these two names with the real field names from your types
-  const completedSessions = state.completedSessions;
-  const longBreakInterval = settings.longBreakInterval;
-
-  const sessionDots = Array.from({ length: longBreakInterval }, (_, i) => (
+  const sessionDots = Array.from({ length: timer.settings.sessionsBeforeLongBreak }, (_, i) => (
     <span
       key={i}
-      className={`session-dot ${i < (completedSessions % longBreakInterval) ? 'filled' : ''}`}
+      className={`session-dot ${i < (timer.completedWorkSessions % timer.settings.sessionsBeforeLongBreak) ? 'filled' : ''}`}
     />
   ));
 
@@ -25,10 +18,10 @@ export function PomodoroTimer() {
       <h1 className="app-title">Pomodoro Timer</h1>
 
       <div className="session-tabs">
-        {(['work', 'short-break', 'long-break'] as SessionType[]).map((type) => (
+        {(['work', 'shortBreak', 'longBreak'] as SessionType[]).map((type) => (
           <button
             key={type}
-            className={`tab ${sessionType === type ? 'active' : ''}`}
+            className={`tab ${timer.sessionType === type ? 'active' : ''}`}
             disabled
           >
             {getSessionLabel(type)}
@@ -36,19 +29,21 @@ export function PomodoroTimer() {
         ))}
       </div>
 
-      <div className={`timer-display ${sessionType}`}>
-        <span className="time">{formatTime(timeRemaining)}</span>
+      <div className={`timer-display ${timer.sessionType}`}>
+        <span className="time">{formatTime(timer.timeRemaining)}</span>
       </div>
 
       <div className="session-progress">{sessionDots}</div>
-      <p className="session-info">Completed sessions: {completedSessions}</p>
+      <p className="session-info">
+        Completed sessions: {timer.completedWorkSessions}
+      </p>
 
       <div className="controls">
-        {status === 'running' ? (
+        {timer.status === 'running' ? (
           <button className="btn btn-pause" onClick={timer.pause}>Pause</button>
         ) : (
           <button className="btn btn-start" onClick={timer.start}>
-            {status === 'paused' ? 'Resume' : 'Start'}
+            {timer.status === 'paused' ? 'Resume' : 'Start'}
           </button>
         )}
         <button className="btn btn-reset" onClick={timer.reset}>Reset</button>

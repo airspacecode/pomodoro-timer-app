@@ -1,42 +1,47 @@
 import type { SessionType, TimerSettings } from '../types/timer';
 
-export function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
+export function formatTime(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 export function getDurationForSession(type: SessionType, settings: TimerSettings): number {
   switch (type) {
     case 'work':
       return settings.workDuration;
-    case 'shortBreak':
+    case 'short-break':
       return settings.shortBreakDuration;
-    case 'longBreak':
+    case 'long-break':
       return settings.longBreakDuration;
+    default: {
+      const _exhaustive: never = type;
+      return _exhaustive;
+    }
   }
 }
 
 export function getNextSessionType(
-  currentType: SessionType,
-  completedWorkSessions: number,
-  sessionsBeforeLongBreak: number
+  completedSessions: number,
+  longBreakInterval: number
 ): SessionType {
-  if (currentType === 'work') {
-    return completedWorkSessions % sessionsBeforeLongBreak === 0
-      ? 'longBreak'
-      : 'shortBreak';
-  }
-  return 'work';
+  return completedSessions % longBreakInterval === 0
+    ? 'long-break'
+    : 'short-break';
 }
 
 export function getSessionLabel(type: SessionType): string {
   switch (type) {
     case 'work':
-      return 'Focus';
-    case 'shortBreak':
+      return 'Work';
+    case 'short-break':
       return 'Short Break';
-    case 'longBreak':
+    case 'long-break':
       return 'Long Break';
+    default: {
+      const _exhaustive: never = type;
+      return _exhaustive;
+    }
   }
 }

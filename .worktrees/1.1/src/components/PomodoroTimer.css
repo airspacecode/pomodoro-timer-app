@@ -1,0 +1,103 @@
+.pomodoro-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 400px;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+
+.app-title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.session-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab {
+  padding: 0.4rem 1rem;
+  border: 2px solid #ccc;
+  border-radius: 999px;
+  background: transparent;
+  cursor: default;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.tab.active {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 6px solid #e74c3c;
+}
+
+.timer-display.shortBreak {
+  border-color: #2ecc71;
+}
+
+.timer-display.longBreak {
+  border-color: #3498db;
+}
+
+.time {
+  font-size: 4rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.session-progress {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.session-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+  display: inline-block;
+}
+
+.session-dot.filled {
+  background: #e74c3c;
+}
+
+.session-info {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn {
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-start  { background: #e74c3c; color: white; }
+.btn-pause  { background: #f39c12; color: white; }
+.btn-reset  { background: #ecf0f1; color: #333; }
+.btn-skip   { background: #bdc3c7; color: #333; }

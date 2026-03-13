@@ -1,0 +1,285 @@
+<<<<<<< HEAD
+import { useCallback, useEffect, useReducer, useRef } from 'react';
+import type { TimerActions, TimerSettings, TimerState } from '../types/timer';
+import { getDurationForSession, getNextSessionType } from '../utils/timerUtils';
+
+const DEFAULT_SETTINGS: TimerSettings = {
+  workDuration: 25 * 60,
+  shortBreakDuration: 5 * 60,
+  longBreakDuration: 15 * 60,
+  sessionsBeforeLongBreak: 4,
+};
+
+type TimerAction =
+  | { type: 'START' }
+  | { type: 'PAUSE' }
+  | { type: 'RESET' }
+  | { type: 'TICK' }
+  | { type: 'SKIP' }
+  | { type: 'UPDATE_SETTINGS'; payload: Partial<TimerSettings> };
+
+function timerReducer(state: TimerState, action: TimerAction): TimerState {
+  switch (action.type) {
+    case 'START':
+      if (state.status === 'running') return state;
+      return { ...state, status: 'running' };
+
+    case 'PAUSE':
+      if (state.status !== 'running') return state;
+      return { ...state, status: 'paused' };
+
+    case 'RESET':
+      return {
+        ...state,
+        status: 'idle',
+        timeRemaining: getDurationForSession(state.sessionType, state.settings),
+      };
+
+    case 'TICK': {
+      if (state.status !== 'running') return state;
+      if (state.timeRemaining > 1) {
+        return { ...state, timeRemaining: state.timeRemaining - 1 };
+      }
+      // timeRemaining is 1 or 0 — session complete, transition automatically
+      const newCompletedWork =
+        state.sessionType === 'work'
+          ? state.completedWorkSessions + 1
+          : state.completedWorkSessions;
+      const nextSession = getNextSessionType(
+        state.sessionType,
+        newCompletedWork,
+        state.settings.sessionsBeforeLongBreak
+      );
+      return {
+        ...state,
+        status: 'idle',
+        sessionType: nextSession,
+        timeRemaining: getDurationForSession(nextSession, state.settings),
+        completedWorkSessions: newCompletedWork,
+      };
+    }
+
+    case 'SKIP': {
+      const newCompletedWork =
+        state.sessionType === 'work'
+          ? state.completedWorkSessions + 1
+          : state.completedWorkSessions;
+      const nextSession = getNextSessionType(
+        state.sessionType,
+        newCompletedWork,
+        state.settings.sessionsBeforeLongBreak
+      );
+      return {
+        ...state,
+        status: 'idle',
+        sessionType: nextSession,
+        timeRemaining: getDurationForSession(nextSession, state.settings),
+        completedWorkSessions: newCompletedWork,
+      };
+    }
+
+    case 'UPDATE_SETTINGS': {
+      const newSettings = { ...state.settings, ...action.payload };
+      // If the timer is idle, also update the current session duration
+      const timeRemaining =
+        state.status === 'idle'
+          ? getDurationForSession(state.sessionType, newSettings)
+          : state.timeRemaining;
+      return { ...state, settings: newSettings, timeRemaining };
+    }
+
+    default:
+      return state;
+  }
+}
+
+function buildInitialState(settings: TimerSettings = DEFAULT_SETTINGS): TimerState {
+  return {
+    status: 'idle',
+    sessionType: 'work',
+    timeRemaining: settings.workDuration,
+    completedWorkSessions: 0,
+    settings,
+  };
+}
+
+export function useTimer(initialSettings?: Partial<TimerSettings>): TimerState & TimerActions {
+  const mergedSettings = { ...DEFAULT_SETTINGS, ...initialSettings };
+  const [state, dispatch] = useReducer(timerReducer, mergedSettings, buildInitialState);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (state.status === 'running') {
+      intervalRef.current = setInterval(() => dispatch({ type: 'TICK' }), 1000);
+    } else {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [state.status]);
+
+  const start = useCallback(() => dispatch({ type: 'START' }), []);
+  const pause = useCallback(() => dispatch({ type: 'PAUSE' }), []);
+  const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
+  const skipSession = useCallback(() => dispatch({ type: 'SKIP' }), []);
+  const updateSettings = useCallback(
+    (settings: Partial<TimerSettings>) =>
+      dispatch({ type: 'UPDATE_SETTINGS', payload: settings }),
+    []
+  );
+
+  return { ...state, start, pause, reset, skipSession, updateSettings };
+=======
+import { useState, useEffect, useCallback, useRef } from 'react';
+import type { TimerState, TimerSettings, SessionType } from '../types/timer';
+
+const DEFAULT_SETTINGS: TimerSettings = {
+  workDuration: 25,
+  shortBreakDuration: 5,
+  longBreakDuration: 15,
+  longBreakInterval: 4,
+};
+
+function sessionDuration(sessionType: SessionType, settings: TimerSettings): number {
+  switch (sessionType) {
+    case 'work': return settings.workDuration * 60;
+    case 'short-break': return settings.shortBreakDuration * 60;
+    case 'long-break': return settings.longBreakDuration * 60;
+  }
+}
+
+export function useTimer() {
+  const [state, setState] = useState<TimerState>({
+    status: 'idle',
+    sessionType: 'work',
+    timeRemaining: DEFAULT_SETTINGS.workDuration * 60,
+    completedSessions: 0,
+    settings: DEFAULT_SETTINGS,
+  });
+
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearTimer = useCallback(() => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  const tick = useCallback(() => {
+    setState(prev => {
+      if (prev.timeRemaining <= 1) {
+        // Session complete — advance to next session
+        const completedSessions =
+          prev.sessionType === 'work' ? prev.completedSessions + 1 : prev.completedSessions;
+
+        let nextSession: SessionType;
+        if (prev.sessionType === 'work') {
+          nextSession =
+            completedSessions % prev.settings.longBreakInterval === 0
+              ? 'long-break'
+              : 'short-break';
+        } else {
+          nextSession = 'work';
+        }
+
+        return {
+          ...prev,
+          status: 'idle',
+          sessionType: nextSession,
+          timeRemaining: sessionDuration(nextSession, prev.settings),
+          completedSessions,
+        };
+      }
+      return { ...prev, timeRemaining: prev.timeRemaining - 1 };
+    });
+  }, []);
+
+  useEffect(() => {
+    setState(prev => {
+      if (prev.status === 'running') {
+        clearTimer();
+        intervalRef.current = setInterval(tick, 1000);
+      } else {
+        clearTimer();
+      }
+      return prev;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status]);
+
+  // Re-attach interval on tick reference change
+  useEffect(() => {
+    if (state.status === 'running') {
+      clearTimer();
+      intervalRef.current = setInterval(tick, 1000);
+    }
+    return clearTimer;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tick]);
+
+  const start = useCallback(() => {
+    setState(prev =>
+      prev.status !== 'running' ? { ...prev, status: 'running' } : prev
+    );
+  }, []);
+
+  const pause = useCallback(() => {
+    setState(prev =>
+      prev.status === 'running' ? { ...prev, status: 'paused' } : prev
+    );
+  }, []);
+
+  const reset = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      status: 'idle',
+      timeRemaining: sessionDuration(prev.sessionType, prev.settings),
+    }));
+  }, []);
+
+  const skipSession = useCallback(() => {
+    setState(prev => {
+      const completedSessions =
+        prev.sessionType === 'work' ? prev.completedSessions + 1 : prev.completedSessions;
+      let nextSession: SessionType;
+      if (prev.sessionType === 'work') {
+        nextSession =
+          completedSessions % prev.settings.longBreakInterval === 0
+            ? 'long-break'
+            : 'short-break';
+      } else {
+        nextSession = 'work';
+      }
+      return {
+        ...prev,
+        status: 'idle',
+        sessionType: nextSession,
+        timeRemaining: sessionDuration(nextSession, prev.settings),
+        completedSessions,
+      };
+    });
+  }, []);
+
+  const updateSettings = useCallback((newSettings: Partial<TimerSettings>) => {
+    setState(prev => {
+      const settings = { ...prev.settings, ...newSettings };
+      // If timer is idle, update the time remaining for the current session
+      const timeRemaining =
+        prev.status === 'idle'
+          ? sessionDuration(prev.sessionType, settings)
+          : prev.timeRemaining;
+      return { ...prev, settings, timeRemaining };
+    });
+  }, []);
+
+  return { state, start, pause, reset, skipSession, updateSettings };
+>>>>>>> task/1.2
+}

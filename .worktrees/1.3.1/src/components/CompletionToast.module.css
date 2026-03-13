@@ -1,0 +1,113 @@
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 420px;
+  width: calc(100vw - 48px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface, #16213e);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Coloured left border per session type */
+.toast::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 14px 0 0 14px;
+  background: var(--accent, #e74c3c);
+}
+
+.toast.shortbreak::before {
+  background: var(--accent-break, #27ae60);
+}
+
+.toast.longbreak::before {
+  background: var(--accent-long, #2980b9);
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 16px 16px 20px;
+}
+
+.emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.message {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.permissionBtn {
+  margin-top: 6px;
+  background: none;
+  border: 1px solid var(--accent, #e74c3c);
+  color: var(--accent, #e74c3c);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.15s, color 0.15s;
+}
+
+.permissionBtn:hover {
+  background: var(--accent, #e74c3c);
+  color: #fff;
+}
+
+.close {
+  background: none;
+  border: none;
+  color: var(--text-muted, #64748b);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  align-self: flex-start;
+}
+
+.close:hover {
+  color: var(--text-primary, #e2e8f0);
+}
